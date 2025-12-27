@@ -1,141 +1,81 @@
-import React from 'react';
-import {Box, Text} from 'ink';
-import BigText from 'ink-big-text';
-import os from 'os';
+import React, { useState, useEffect } from "react";
+import { Box, Text, useApp, useInput } from "ink";
+import BigText from "ink-big-text";
+import Spinner from "ink-spinner";
+import CommandChart from "./components/CommandChart.js";
+import SystemInfo from "./components/SystemInfo.js";
+import { getTopCommands, CommandStat } from "./history.js";
 
-const formatUptime = (seconds: number): string => {
-	const days = Math.floor(seconds / 86400);
-	const hours = Math.floor((seconds % 86400) / 3600);
-	const minutes = Math.floor((seconds % 3600) / 60);
-
-	if (days > 0) {
-		return `${days}d ${hours}h ${minutes}m`;
-	}
-
-	if (hours > 0) {
-		return `${hours}h ${minutes}m`;
-	}
-
-	return `${minutes}m`;
-};
-
-const getUptimeMessage = (seconds: number): string => {
-	const days = Math.floor(seconds / 86400);
-
-	if (days > 30) {
-		return '🔥 Living rent-free in your RAM!';
-	}
-
-	if (days > 7) {
-		return '💪 Going strong!';
-	}
-
-	if (days > 1) {
-		return '✨ Fresh and ready!';
-	}
-
-	return '⚡ Just getting started!';
-};
-
-const formatBytes = (bytes: number): string => {
-	const gb = bytes / 1024 / 1024 / 1024;
-	return `${gb.toFixed(2)} GB`;
-};
+const tabs = ["Your wrapped", "System Info"];
 
 export default function App() {
-	const platform = os.platform();
-	const shell = process.env['SHELL'] || 'Unknown';
-	const uptime = os.uptime();
-	const uptimeFormatted = formatUptime(uptime);
-	const uptimeMessage = getUptimeMessage(uptime);
-	const cpuCount = os.cpus().length;
-	const cpuModel = os.cpus()[0]?.model || 'Unknown';
-	const arch = os.arch();
-	const totalMem = os.totalmem();
-	const freeMem = os.freemem();
-	const usedMem = totalMem - freeMem;
-	const memUsagePercent = ((usedMem / totalMem) * 100).toFixed(1);
-	const hostname = os.hostname();
-	const username = os.userInfo().username;
-	const homeDir = os.homedir();
-	const terminal = process.env['TERM'] || 'unknown';
+  const { exit } = useApp();
+  const [activeTab, setActiveTab] = useState(0);
+  const [topCommands, setTopCommands] = useState<CommandStat[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-	return (
-		<Box flexDirection="column">
-			<BigText text="CLI Wrapped" font="shade" />
+  useEffect(() => {
+    getTopCommands(15)
+      .then(setTopCommands)
+      .catch((error) =>
+        setError(error.message ?? "Failed to retrieve top commands.")
+      );
+  }, []);
 
-			<Box marginTop={1} flexDirection="column" gap={1}>
-				{/* System Info Section */}
-				<Box flexDirection="column">
-					<Text bold color="magenta">
-						💻 SYSTEM STATS
-					</Text>
-					<Box flexDirection="column" marginLeft={2}>
-						<Text>
-							<Text color="cyan">OS:</Text> {platform} ({arch})
-						</Text>
-						<Text>
-							<Text color="cyan">Shell:</Text> {shell}
-						</Text>
-						<Text>
-							<Text color="cyan">Terminal:</Text> {terminal}
-						</Text>
-					</Box>
-				</Box>
+  useInput((_input, key) => {
+    if (key.tab) {
+      setActiveTab((prev) => (prev + 1) % tabs.length);
+    }
 
-				{/* User Info Section */}
-				<Box flexDirection="column">
-					<Text bold color="yellow">
-						👤 WHO ARE YOU?
-					</Text>
-					<Box flexDirection="column" marginLeft={2}>
-						<Text>
-							<Text color="cyan">Username:</Text> {username}
-						</Text>
-						<Text>
-							<Text color="cyan">Hostname:</Text> {hostname}
-						</Text>
-						<Text>
-							<Text color="cyan">Home:</Text> {homeDir}
-						</Text>
-					</Box>
-				</Box>
+    if (key.escape) {
+      exit();
+    }
+  });
 
-				{/* Performance Section */}
-				<Box flexDirection="column">
-					<Text bold color="green">
-						⚡ POWER LEVEL
-					</Text>
-					<Box flexDirection="column" marginLeft={2}>
-						<Text>
-							<Text color="cyan">CPU Cores:</Text> {cpuCount} cores of pure power
-						</Text>
-						<Text>
-							<Text color="cyan">Processor:</Text> {cpuModel}
-						</Text>
-						<Text>
-							<Text color="cyan">RAM:</Text> {formatBytes(totalMem)} total (
-							{memUsagePercent}% flexing)
-						</Text>
-						<Text>
-							<Text color="cyan">Available RAM:</Text> {formatBytes(freeMem)}
-						</Text>
-					</Box>
-				</Box>
+  return (
+    <Box flexDirection="column">
+      <BigText text="CLI Wrapped" font="shade" />
 
-				{/* Uptime Section */}
-				<Box flexDirection="column">
-					<Text bold color="blue">
-						🕐 UPTIME VIBES
-					</Text>
-					<Box flexDirection="column" marginLeft={2}>
-						<Text>
-							<Text color="cyan">Running for:</Text> {uptimeFormatted}
-						</Text>
-						<Text color="gray">{uptimeMessage}</Text>
-					</Box>
-				</Box>
-			</Box>
-		</Box>
-	);
+      {/* Tab Headers */}
+      <Box marginTop={1} gap={2}>
+        {tabs.map((tab, index) => (
+          <Text
+            key={tab}
+            bold={activeTab === index}
+            color={activeTab === index ? "cyan" : "gray"}
+            dimColor={activeTab !== index}
+          >
+            {activeTab === index ? "▶ " : "  "}
+            {tab}
+          </Text>
+        ))}
+      </Box>
+
+      <Box marginTop={1} gap={2}>
+        <Text color="white">
+          Press Tab to switch between tabs, Escape to exit.
+        </Text>
+      </Box>
+
+      {/* Tab Content */}
+      <Box marginTop={1}>
+        {activeTab === 0 &&
+          (error ? (
+            <Box width={60}>
+              <Text color="red">Error: {error}</Text>
+            </Box>
+          ) : topCommands ? (
+            <CommandChart commands={topCommands} />
+          ) : (
+            <Text>
+              <Text color="cyan">
+                <Spinner type="dots" />
+              </Text>
+              {" Loading command history..."}
+            </Text>
+          ))}
+        {activeTab === 1 && <SystemInfo />}
+      </Box>
+    </Box>
+  );
 }

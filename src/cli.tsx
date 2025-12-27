@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import React from 'react';
-import {render} from 'ink';
+import {withFullScreen} from 'fullscreen-ink';
 import meow from 'meow';
 import App from './app.js';
 
@@ -21,4 +21,4 @@ meow(
 	},
 );
 
-render(<App />);
+withFullScreen(<App />).start();

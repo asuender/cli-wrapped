@@ -14,17 +14,6 @@ pnpm run build
 
 # Watch mode for development
 pnpm run dev
-
-# Run all checks (prettier + xo linter + ava tests)
-pnpm run test
-
-# Run individual checks
-pnpx prettier --check .
-pnpx xo
-pnpx ava
-
-# Run a single test file
-pnpx ava <test-file.ts>
 ```
 
 ## Architecture
@@ -37,9 +26,5 @@ The project compiles TypeScript from `src/` to `dist/`, with `dist/cli.js` as th
 ## Tech Stack
 
 - **Package Manager**: `pnpm` (for speed)
-
 - **Ink** - React for CLIs (terminal UI framework)
 - **meow** - CLI argument parsing
-- **XO** - Linter (with xo-react config)
-- **Prettier** - Code formatting (@vdemedes/prettier-config)
-- **AVA** - Test runner
