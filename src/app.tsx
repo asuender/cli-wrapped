@@ -1,54 +1,59 @@
-import React, {useState} from 'react';
-import {Box, Text, useInput} from 'ink';
-import BigText from 'ink-big-text';
-import CommandChart from './components/CommandChart.js';
-import SystemInfo from './components/SystemInfo.js';
-import {getTopCommands} from './history.js';
+import React, { useState } from "react";
+import { Box, Text, useApp, useInput } from "ink";
+import BigText from "ink-big-text";
+import CommandChart from "./components/CommandChart.js";
+import SystemInfo from "./components/SystemInfo.js";
+import { getTopCommands } from "./history.js";
 
-const tabs = ['Your wrapped', 'System Info'];
+const tabs = ["Your wrapped", "System Info"];
 
 export default function App() {
-	const [activeTab, setActiveTab] = useState(0);
+  const { exit } = useApp();
+  const [activeTab, setActiveTab] = useState(0);
 
-	// Handle Tab key to switch between tabs
-	useInput((_input, key) => {
-		if (key.tab) {
-			setActiveTab(prev => (prev + 1) % tabs.length);
-		}
-	});
+  // Handle keyboard input
+  useInput((_input, key) => {
+    if (key.tab) {
+      setActiveTab((prev) => (prev + 1) % tabs.length);
+    }
 
-	const topCommands = getTopCommands(5);
+    if (key.escape) {
+      exit();
+    }
+  });
 
-	return (
-		<Box flexDirection="column">
-			<BigText text="CLI Wrapped" font="shade" />
+  const topCommands = getTopCommands(15);
 
-			{/* Tab Headers */}
-			<Box marginTop={1} gap={2}>
-				{tabs.map((tab, index) => (
-					<Text
-						key={tab}
-						bold={activeTab === index}
-						color={activeTab === index ? 'cyan' : 'gray'}
-						dimColor={activeTab !== index}
-					>
-						{activeTab === index ? '▶ ' : '  '}
-						{tab}
-					</Text>
-				))}
-			</Box>
+  return (
+    <Box flexDirection="column">
+      <BigText text="CLI Wrapped" font="shade" />
 
-			<Box marginTop={1}>
-				<Text color="gray" dimColor>
-					Press Tab to switch between tabs
-				</Text>
-			</Box>
+      {/* Tab Headers */}
+      <Box marginTop={1} gap={2}>
+        {tabs.map((tab, index) => (
+          <Text
+            key={tab}
+            bold={activeTab === index}
+            color={activeTab === index ? "cyan" : "gray"}
+            dimColor={activeTab !== index}
+          >
+            {activeTab === index ? "▶ " : "  "}
+            {tab}
+          </Text>
+        ))}
+      </Box>
 
-			{/* Tab Content */}
-			<Box marginTop={1}>
-				{activeTab === 0 && <CommandChart commands={topCommands} />}
-				{activeTab === 1 && <SystemInfo />}
-			</Box>
-		</Box>
-	);
+      <Box marginTop={1} gap={2}>
+        <Text color="white">
+          Press Tab to switch between tabs and escape to exit.
+        </Text>
+      </Box>
+
+      {/* Tab Content */}
+      <Box marginTop={1}>
+        {activeTab === 0 && <CommandChart commands={topCommands} />}
+        {activeTab === 1 && <SystemInfo />}
+      </Box>
+    </Box>
+  );
 }
