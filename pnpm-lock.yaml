@@ -23,6 +23,9 @@ importers:
       ink-big-text:
         specifier: ^2.0.0
         version: 2.0.0(ink@4.4.1(@types/react@18.3.27)(react@18.3.1))(react@18.3.1)
+      ink-spinner:
+        specifier: ^5.0.0
+        version: 5.0.0(ink@4.4.1(@types/react@18.3.27)(react@18.3.1))(react@18.3.1)
       meow:
         specifier: ^11.0.0
         version: 11.0.0
@@ -125,6 +128,10 @@ packages:
     resolution: {integrity: sha512-VGtlMu3x/4DOtIUwEkRezxUZ2lBacNJCHash0N0WeZDBS+7Ux1dm3XWAgWYxLJFMMdOeXMHXorshEFhbMSGelg==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
+  cli-spinners@2.9.2:
+    resolution: {integrity: sha512-ywqV+5MmyL4E7ybXgKys4DugZbX0FC6LnwrhjuykIjnK9k8OQacQ7axGKnjDXWNhns0xot3bZI5h55H8yo9cJg==}
+    engines: {node: '>=6'}
+
   cli-truncate@3.1.0:
     resolution: {integrity: sha512-wfOBkjXteqSnI59oPcJkcPl/ZmwvMMOj340qUIY1SKZCv0B9Cf4D4fAucRkIKQmsIuYK3x1rrgU7MeGRruiuiA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
@@ -209,6 +216,13 @@ packages:
     peerDependencies:
       ink: '>=4'
       react: '>=18'
+
+  ink-spinner@5.0.0:
+    resolution: {integrity: sha512-EYEasbEjkqLGyPOUc8hBJZNuC5GvXGMLu0w5gdTNskPc7Izc5vO3tdQEYnzvshucyGCBXc86ig0ujXPMWaQCdA==}
+    engines: {node: '>=14.16'}
+    peerDependencies:
+      ink: '>=4.0.0'
+      react: '>=18.0.0'
 
   ink@4.4.1:
     resolution: {integrity: sha512-rXckvqPBB0Krifk5rn/5LvQGmyXwCUpBfmTwbkQNBY9JY8RSl3b8OftBNEYxg4+SWUhEKcPifgope28uL9inlA==}
@@ -584,6 +598,8 @@ snapshots:
     dependencies:
       restore-cursor: 4.0.0
 
+  cli-spinners@2.9.2: {}
+
   cli-truncate@3.1.0:
     dependencies:
       slice-ansi: 5.0.0
@@ -660,6 +676,12 @@ snapshots:
       cfonts: 3.3.1
       ink: 4.4.1(@types/react@18.3.27)(react@18.3.1)
       prop-types: 15.8.1
+      react: 18.3.1
+
+  ink-spinner@5.0.0(ink@4.4.1(@types/react@18.3.27)(react@18.3.1))(react@18.3.1):
+    dependencies:
+      cli-spinners: 2.9.2
+      ink: 4.4.1(@types/react@18.3.27)(react@18.3.1)
       react: 18.3.1
 
   ink@4.4.1(@types/react@18.3.27)(react@18.3.1):

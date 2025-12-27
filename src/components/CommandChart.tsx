@@ -29,7 +29,6 @@ export default function CommandChart({ commands }: Props) {
         {commands.map((cmd, index) => {
           const barWidth = Math.ceil((cmd.count / maxCount) * maxBarWidth);
           const bar = "█".repeat(barWidth);
-          // const padding = " ".repeat(maxBarWidth - barWidth);
           const color =
             index === 0
               ? "yellow"

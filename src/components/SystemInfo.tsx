@@ -49,7 +49,7 @@ const getTerminalName = (): string => {
   const programLower = termProgram.toLowerCase();
   if (programLower.includes("ghostty")) return "👻 Ghostty";
   if (programLower.includes("iterm")) return "iTerm2";
-  if (programLower.includes("apple_terminal")) return " Terminal";
+  if (programLower.includes("apple_terminal")) return "🍎 Terminal";
   if (programLower.includes("vscode")) return "VS Code";
   if (programLower.includes("hyper")) return "⚡ Hyper";
   if (programLower.includes("warp")) return "🚀 Warp";

@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "fs/promises";
 import os from "os";
 import path from "path";
 
@@ -22,7 +22,7 @@ const IGNORED_COMMANDS = new Set([
   "git",
 ]);
 
-export const getTopCommands = (limit = 10): CommandStat[] => {
+export const getTopCommands = async (limit = 10): Promise<CommandStat[]> => {
   try {
     const homeDir = os.homedir();
     const shell = process.env["SHELL"] || "";
@@ -39,12 +39,14 @@ export const getTopCommands = (limit = 10): CommandStat[] => {
     }
 
     // Check if file exists
-    if (!fs.existsSync(historyFile)) {
+    try {
+      await fs.access(historyFile);
+    } catch {
       return [];
     }
 
     // Read and parse history file
-    const historyContent = fs.readFileSync(historyFile, "utf-8");
+    const historyContent = await fs.readFile(historyFile, "utf-8");
     const lines = historyContent.split("\n").filter((line) => line.trim());
 
     // Count command frequency

@@ -1,15 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Text, useApp, useInput } from "ink";
 import BigText from "ink-big-text";
+import Spinner from "ink-spinner";
 import CommandChart from "./components/CommandChart.js";
 import SystemInfo from "./components/SystemInfo.js";
-import { getTopCommands } from "./history.js";
+import { getTopCommands, CommandStat } from "./history.js";
 
 const tabs = ["Your wrapped", "System Info"];
 
 export default function App() {
   const { exit } = useApp();
   const [activeTab, setActiveTab] = useState(0);
+  const [topCommands, setTopCommands] = useState<CommandStat[] | null>(null);
+
+  useEffect(() => {
+    getTopCommands(15).then(setTopCommands);
+  }, []);
 
   // Handle keyboard input
   useInput((_input, key) => {
@@ -21,8 +27,6 @@ export default function App() {
       exit();
     }
   });
-
-  const topCommands = getTopCommands(15);
 
   return (
     <Box flexDirection="column">
@@ -51,7 +55,17 @@ export default function App() {
 
       {/* Tab Content */}
       <Box marginTop={1}>
-        {activeTab === 0 && <CommandChart commands={topCommands} />}
+        {activeTab === 0 &&
+          (topCommands ? (
+            <CommandChart commands={topCommands} />
+          ) : (
+            <Text>
+              <Text color="cyan">
+                <Spinner type="dots" />
+              </Text>
+              {" Loading command history..."}
+            </Text>
+          ))}
         {activeTab === 1 && <SystemInfo />}
       </Box>
     </Box>
