@@ -1,14 +1,23 @@
 import React from 'react';
-import {Text} from 'ink';
+import {Box, Text} from 'ink';
+import BigText from 'ink-big-text';
+import os from 'os';
 
-type Props = {
-	name: string | undefined;
-};
+export default function App() {
+	const platform = os.platform();
+	const shell = process.env['SHELL'] || 'Unknown';
 
-export default function App({name = 'Andreas'}: Props) {
 	return (
-		<Text>
-			Hello, <Text color="green">{name}</Text>
-		</Text>
+		<Box flexDirection="column">
+			<BigText text="CLI Wrapped" font="chrome" />
+			<Box marginTop={1} flexDirection="column">
+				<Text>
+					<Text color="cyan">OS:</Text> {platform}
+				</Text>
+				<Text>
+					<Text color="cyan">Shell:</Text> {shell}
+				</Text>
+			</Box>
+		</Box>
 	);
 }

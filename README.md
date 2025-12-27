@@ -11,6 +11,7 @@ npm install --global cli-wrapped
 ## Development Setup
 
 1. Install dependencies:
+
    ```bash
    pnpm install
    ```
@@ -24,6 +25,7 @@ npm install --global cli-wrapped
 Now you can run `cli-wrapped` from anywhere.
 
 For development with auto-rebuild on changes:
+
 ```bash
 pnpm run dev
 ```
