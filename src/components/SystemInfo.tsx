@@ -1,6 +1,22 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Text } from "ink";
 import os from "os";
+
+interface SystemData {
+  platform: string;
+  arch: string;
+  shell: string;
+  terminal: string;
+  username: string;
+  hostname: string;
+  cpuCount: number;
+  cpuModel: string;
+  totalMem: number;
+  freeMem: number;
+  memUsagePercent: string;
+  uptimeFormatted: string;
+  uptimeMessage: string;
+}
 
 const formatUptime = (seconds: number): string => {
   const days = Math.floor(seconds / 86400);
@@ -71,21 +87,34 @@ const getTerminalName = (): string => {
 };
 
 export default function SystemInfo() {
-  const platform = os.platform();
-  const shell = process.env["SHELL"] || "Unknown";
-  const uptime = os.uptime();
-  const uptimeFormatted = formatUptime(uptime);
-  const uptimeMessage = getUptimeMessage(uptime);
-  const cpuCount = os.cpus().length;
-  const cpuModel = os.cpus()[0]?.model || "Unknown";
-  const arch = os.arch();
-  const totalMem = os.totalmem();
-  const freeMem = os.freemem();
-  const usedMem = totalMem - freeMem;
-  const memUsagePercent = ((usedMem / totalMem) * 100).toFixed(1);
-  const hostname = os.hostname();
-  const username = os.userInfo().username;
-  const terminal = getTerminalName();
+  const [data, setData] = useState<SystemData | null>(null);
+
+  useEffect(() => {
+    const uptime = os.uptime();
+    const totalMem = os.totalmem();
+    const freeMem = os.freemem();
+    const usedMem = totalMem - freeMem;
+
+    setData({
+      platform: os.platform(),
+      arch: os.arch(),
+      shell: process.env["SHELL"] || "Unknown",
+      terminal: getTerminalName(),
+      username: os.userInfo().username,
+      hostname: os.hostname(),
+      cpuCount: os.cpus().length,
+      cpuModel: os.cpus()[0]?.model || "Unknown",
+      totalMem,
+      freeMem,
+      memUsagePercent: ((usedMem / totalMem) * 100).toFixed(1),
+      uptimeFormatted: formatUptime(uptime),
+      uptimeMessage: getUptimeMessage(uptime),
+    });
+  }, []);
+
+  if (!data) {
+    return null;
+  }
 
   return (
     <Box flexDirection="column" gap={1}>
@@ -96,13 +125,13 @@ export default function SystemInfo() {
         </Text>
         <Box flexDirection="column" marginLeft={2}>
           <Text>
-            <Text color="cyan">OS:</Text> {platform} ({arch})
+            <Text color="cyan">OS:</Text> {data.platform} ({data.arch})
           </Text>
           <Text>
-            <Text color="cyan">Shell:</Text> {shell}
+            <Text color="cyan">Shell:</Text> {data.shell}
           </Text>
           <Text>
-            <Text color="cyan">Terminal:</Text> {terminal}
+            <Text color="cyan">Terminal:</Text> {data.terminal}
           </Text>
         </Box>
       </Box>
@@ -114,10 +143,10 @@ export default function SystemInfo() {
         </Text>
         <Box flexDirection="column" marginLeft={2}>
           <Text>
-            <Text color="cyan">Username:</Text> {username}
+            <Text color="cyan">Username:</Text> {data.username}
           </Text>
           <Text>
-            <Text color="cyan">Hostname:</Text> {hostname}
+            <Text color="cyan">Hostname:</Text> {data.hostname}
           </Text>
         </Box>
       </Box>
@@ -129,17 +158,17 @@ export default function SystemInfo() {
         </Text>
         <Box flexDirection="column" marginLeft={2}>
           <Text>
-            <Text color="cyan">CPU Cores:</Text> {cpuCount} cores of pure power
+            <Text color="cyan">CPU Cores:</Text> {data.cpuCount} cores of pure power
           </Text>
           <Text>
-            <Text color="cyan">Processor:</Text> {cpuModel}
+            <Text color="cyan">Processor:</Text> {data.cpuModel}
           </Text>
           <Text>
-            <Text color="cyan">RAM:</Text> {formatBytes(totalMem)} total (
-            {memUsagePercent}% flexing)
+            <Text color="cyan">RAM:</Text> {formatBytes(data.totalMem)} total (
+            {data.memUsagePercent}% flexing)
           </Text>
           <Text>
-            <Text color="cyan">Available RAM:</Text> {formatBytes(freeMem)}
+            <Text color="cyan">Available RAM:</Text> {formatBytes(data.freeMem)}
           </Text>
         </Box>
       </Box>
@@ -151,10 +180,10 @@ export default function SystemInfo() {
         </Text>
         <Box flexDirection="column" marginLeft={2}>
           <Text>
-            <Text color="cyan">Running for:</Text> {uptimeFormatted}
+            <Text color="cyan">Running for:</Text> {data.uptimeFormatted}
           </Text>
           <Box marginTop={1}>
-            <Text color="white">{uptimeMessage}</Text>
+            <Text color="white">{data.uptimeMessage}</Text>
           </Box>
         </Box>
       </Box>

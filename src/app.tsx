@@ -12,12 +12,16 @@ export default function App() {
   const { exit } = useApp();
   const [activeTab, setActiveTab] = useState(0);
   const [topCommands, setTopCommands] = useState<CommandStat[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getTopCommands(15).then(setTopCommands);
+    getTopCommands(15)
+      .then(setTopCommands)
+      .catch((error) =>
+        setError(error.message ?? "Failed to retrieve top commands.")
+      );
   }, []);
 
-  // Handle keyboard input
   useInput((_input, key) => {
     if (key.tab) {
       setActiveTab((prev) => (prev + 1) % tabs.length);
@@ -49,14 +53,18 @@ export default function App() {
 
       <Box marginTop={1} gap={2}>
         <Text color="white">
-          Press Tab to switch between tabs and escape to exit.
+          Press Tab to switch between tabs, Escape to exit.
         </Text>
       </Box>
 
       {/* Tab Content */}
       <Box marginTop={1}>
         {activeTab === 0 &&
-          (topCommands ? (
+          (error ? (
+            <Box width={60}>
+              <Text color="red">Error: {error}</Text>
+            </Box>
+          ) : topCommands ? (
             <CommandChart commands={topCommands} />
           ) : (
             <Text>
