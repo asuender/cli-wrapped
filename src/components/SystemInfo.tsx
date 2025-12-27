@@ -12,7 +12,6 @@ interface SystemData {
   cpuCount: number;
   cpuModel: string;
   totalMem: number;
-  freeMem: number;
   memUsagePercent: string;
   uptimeFormatted: string;
   uptimeMessage: string;
@@ -82,7 +81,7 @@ const getTerminalName = (): string => {
   if (termLower.includes("screen")) return "screen";
 
   // Generic fallback
-  if (term) return `🖥️ ${term}`;
+  if (term) return `${term}`;
   return "Unknown";
 };
 
@@ -92,8 +91,7 @@ export default function SystemInfo() {
   useEffect(() => {
     const uptime = os.uptime();
     const totalMem = os.totalmem();
-    const freeMem = os.freemem();
-    const usedMem = totalMem - freeMem;
+    const usedMem = totalMem - os.freemem();
 
     setData({
       platform: os.platform(),
@@ -105,7 +103,6 @@ export default function SystemInfo() {
       cpuCount: os.cpus().length,
       cpuModel: os.cpus()[0]?.model || "Unknown",
       totalMem,
-      freeMem,
       memUsagePercent: ((usedMem / totalMem) * 100).toFixed(1),
       uptimeFormatted: formatUptime(uptime),
       uptimeMessage: getUptimeMessage(uptime),
@@ -158,7 +155,8 @@ export default function SystemInfo() {
         </Text>
         <Box flexDirection="column" marginLeft={2}>
           <Text>
-            <Text color="cyan">CPU Cores:</Text> {data.cpuCount} cores of pure power
+            <Text color="cyan">CPU Cores:</Text> {data.cpuCount} cores of pure
+            power
           </Text>
           <Text>
             <Text color="cyan">Processor:</Text> {data.cpuModel}
@@ -166,9 +164,6 @@ export default function SystemInfo() {
           <Text>
             <Text color="cyan">RAM:</Text> {formatBytes(data.totalMem)} total (
             {data.memUsagePercent}% flexing)
-          </Text>
-          <Text>
-            <Text color="cyan">Available RAM:</Text> {formatBytes(data.freeMem)}
           </Text>
         </Box>
       </Box>
