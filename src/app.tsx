@@ -9,7 +9,7 @@ export default function App() {
 
 	return (
 		<Box flexDirection="column">
-			<BigText text="CLI Wrapped" font="chrome" />
+			<BigText text="CLI Wrapped" font="shade" />
 			<Box marginTop={1} flexDirection="column">
 				<Text>
 					<Text color="cyan">OS:</Text> {platform}
