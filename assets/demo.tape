@@ -3,6 +3,8 @@ Output assets/demo.gif
 Set FontSize 16
 Set Width 900
 Set Height 750
+Set Padding 15
+Set TypingSpeed 100ms
 Set Theme "Catppuccin Mocha"
 
 Type "cli-wrapped"
