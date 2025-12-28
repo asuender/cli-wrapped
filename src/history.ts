@@ -56,7 +56,12 @@ function parseBash(content: string): Command[] {
 }
 
 function parseFish(content: string): Command[] {
-  const parsed = parseYAML(content) as FishHistoryEntry[] | null;
+  let parsed: FishHistoryEntry[] | null;
+  try {
+    parsed = parseYAML(content) as FishHistoryEntry[] | null;
+  } catch {
+    return [];
+  }
 
   if (!Array.isArray(parsed)) {
     return [];
@@ -72,7 +77,14 @@ function parseFish(content: string): Command[] {
 
 async function getCommands(): Promise<Command[]> {
   const homeDir = os.homedir();
-  const shell = process.env["SHELL"] || "";
+  const shell = process.env["SHELL"];
+
+  if (!shell) {
+    throw new Error(
+      "Could not detect your shell. The SHELL environment variable is not set."
+    );
+  }
+
   let historyFile = "";
   let parser: (content: string) => Command[];
 
@@ -135,7 +147,6 @@ export const getHistoryStats = async (limit = 10): Promise<HistoryStats> => {
     }
   }
 
-  // Find peak hour
   let peakHour: number | null = null;
   let peakHourCount = 0;
 

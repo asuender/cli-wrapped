@@ -84,7 +84,7 @@ export default function SystemInfo() {
       arch: os.arch(),
       shell: process.env["SHELL"] || "Unknown",
       terminal: getTerminalName(),
-      username: os.userInfo().username,
+      username: (() => { try { return os.userInfo().username; } catch { return "Unknown"; } })(),
       hostname: os.hostname(),
       cpuCount: os.cpus().length,
       cpuModel: os.cpus()[0]?.model || "Unknown",

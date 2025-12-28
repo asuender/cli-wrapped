@@ -87,11 +87,10 @@ export default function UsageStats({ stats }: UsageStatsProps) {
 
   if (totalWithTimestamps === 0) {
     return (
-      <Box flexDirection="column">
-        <Text color="yellow">
-          No timestamp data available in your shell history.
-        </Text>
-      </Box>
+      <ErrorMessage
+        message="No timestamp data available in your shell history."
+        subtext="Your shell may not record timestamps by default."
+      />
     );
   }
 
