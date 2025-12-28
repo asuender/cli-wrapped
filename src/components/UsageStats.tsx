@@ -1,10 +1,6 @@
 import React from "react";
 import { Box, Text } from "ink";
-import { UsageStats as UsageStatsType } from "../history.js";
-
-type Props = {
-  stats: UsageStatsType;
-};
+import type { UsageStatsProps, HourlyChartProps } from "../types.js";
 
 const BAR_CHARS = [" ", "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"];
 const CHART_HEIGHT = 4;
@@ -18,14 +14,7 @@ function formatHour(hour: number): string {
   });
 }
 
-type ChartProps = {
-  hourlyBreakdown: number[];
-  peakHour: number | null;
-  peakHourCount: number;
-  totalWithTimestamps: number;
-};
-
-function HourlyChart(chartProps: ChartProps) {
+function HourlyChart(chartProps: HourlyChartProps) {
   const { hourlyBreakdown, peakHour, peakHourCount, totalWithTimestamps } =
     chartProps;
 
@@ -88,7 +77,7 @@ function HourlyChart(chartProps: ChartProps) {
   );
 }
 
-export default function UsageStats({ stats }: Props) {
+export default function UsageStats({ stats }: UsageStatsProps) {
   const { peakHour, peakHourCount, totalWithTimestamps, hourlyBreakdown } =
     stats;
 

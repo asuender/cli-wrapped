@@ -1,12 +1,8 @@
 import React from "react";
 import { Box, Text } from "ink";
-import type { CommandStat } from "../history.js";
+import type { CommandChartProps } from "../types.js";
 
-type Props = {
-  commands: CommandStat[];
-};
-
-export default function CommandChart({ commands }: Props) {
+export default function CommandChart({ commands }: CommandChartProps) {
   if (commands.length === 0) {
     return (
       <Box flexDirection="column">

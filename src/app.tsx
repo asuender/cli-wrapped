@@ -5,7 +5,8 @@ import Spinner from "ink-spinner";
 import CommandChart from "./components/CommandChart.js";
 import SystemInfo from "./components/SystemInfo.js";
 import UsageStats from "./components/UsageStats.js";
-import { getHistoryStats, HistoryStats } from "./history.js";
+import { getHistoryStats } from "./history.js";
+import { HistoryStats } from "./types.js";
 
 const tabs = ["Your wrapped", "Activity Breakdown", "System Info"];
 

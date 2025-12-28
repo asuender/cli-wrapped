@@ -1,21 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Text } from "ink";
 import os from "os";
-
-interface SystemData {
-  platform: string;
-  arch: string;
-  shell: string;
-  terminal: string;
-  username: string;
-  hostname: string;
-  cpuCount: number;
-  cpuModel: string;
-  totalMem: number;
-  memUsagePercent: string;
-  uptimeFormatted: string;
-  uptimeMessage: string;
-}
+import type { SystemData } from "../types.js";
 
 const formatUptime = (seconds: number): string => {
   const days = Math.floor(seconds / 86400);

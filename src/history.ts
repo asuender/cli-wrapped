@@ -2,28 +2,7 @@ import fs from "fs/promises";
 import os from "os";
 import path from "path";
 import { parse as parseYAML } from "yaml";
-
-export type Command = {
-  command: string;
-  timestamp: number | null;
-};
-
-export type CommandStat = {
-  command: string;
-  count: number;
-};
-
-type FishHistoryEntry = {
-  cmd: string;
-  when?: number;
-};
-
-export type UsageStats = {
-  peakHour: number | null;
-  peakHourCount: number;
-  totalWithTimestamps: number;
-  hourlyBreakdown: number[];
-};
+import type { Command, FishHistoryEntry, HistoryStats } from "./types.js";
 
 const IGNORED_COMMANDS = new Set([
   "clear",
@@ -127,11 +106,6 @@ async function getCommands(): Promise<Command[]> {
   }
 }
 
-export type HistoryStats = {
-  topCommands: CommandStat[];
-  usageStats: UsageStats;
-};
-
 export const getHistoryStats = async (limit = 10): Promise<HistoryStats> => {
   const commands = await getCommands();
 
@@ -179,6 +153,11 @@ export const getHistoryStats = async (limit = 10): Promise<HistoryStats> => {
 
   return {
     topCommands,
-    usageStats: { peakHour, peakHourCount, totalWithTimestamps, hourlyBreakdown },
+    usageStats: {
+      peakHour,
+      peakHourCount,
+      totalWithTimestamps,
+      hourlyBreakdown,
+    },
   };
 };
