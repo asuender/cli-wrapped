@@ -39,7 +39,7 @@ export default function CommandChart({ commands }: CommandChartProps) {
               ? "green"
               : "gray";
 
-          const rank = `${index == 0 ? "🏆" : `#${index + 1}`}`.padStart(
+          const rank = `${index === 0 ? "🏆" : `#${index + 1}`}`.padStart(
             3,
             " "
           );

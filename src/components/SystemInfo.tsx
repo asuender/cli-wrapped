@@ -79,12 +79,19 @@ export default function SystemInfo() {
     const totalMem = os.totalmem();
     const usedMem = totalMem - os.freemem();
 
+    let username: string;
+    try {
+      username = os.userInfo().username;
+    } catch {
+      username = "Unknown";
+    }
+
     setData({
       platform: os.platform(),
       arch: os.arch(),
       shell: process.env["SHELL"] || "Unknown",
       terminal: getTerminalName(),
-      username: (() => { try { return os.userInfo().username; } catch { return "Unknown"; } })(),
+      username: username,
       hostname: os.hostname(),
       cpuCount: os.cpus().length,
       cpuModel: os.cpus()[0]?.model || "Unknown",
