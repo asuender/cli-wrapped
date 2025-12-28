@@ -54,3 +54,8 @@ export type HourlyChartProps = {
   peakHourCount: number;
   totalWithTimestamps: number;
 };
+
+export type ErrorMessageProps = {
+  message: string;
+  subtext?: string;
+};

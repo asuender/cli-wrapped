@@ -88,7 +88,7 @@ async function getCommands(): Promise<Command[]> {
     parser = parseFish;
   } else {
     throw new Error(
-      "You're likely using a shell other than 'bash', 'zsh' and 'fish'. " +
+      "You're likely using a shell other than bash, zsh and fish. " +
         "If that's the case, reach out by creating an issue to add support for your shell."
     );
   }

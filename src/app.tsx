@@ -7,6 +7,7 @@ import SystemInfo from "./components/SystemInfo.js";
 import UsageStats from "./components/UsageStats.js";
 import { getHistoryStats } from "./history.js";
 import { HistoryStats } from "./types.js";
+import ErrorMessage from "./components/ErrorMessage.js";
 
 const tabs = ["Your wrapped", "Activity Breakdown", "System Info"];
 
@@ -66,9 +67,7 @@ export default function App() {
       {/* Tab Content */}
       <Box marginTop={1}>
         {error ? (
-          <Box width={60}>
-            <Text color="red">Error: {error}</Text>
-          </Box>
+          <ErrorMessage message={error} />
         ) : !stats ? (
           <Text>
             <Text color="cyan">

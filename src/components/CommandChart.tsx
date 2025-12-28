@@ -1,14 +1,15 @@
 import React from "react";
 import { Box, Text } from "ink";
 import type { CommandChartProps } from "../types.js";
+import ErrorMessage from "./ErrorMessage.js";
 
 export default function CommandChart({ commands }: CommandChartProps) {
   if (commands.length === 0) {
     return (
-      <Box flexDirection="column">
-        <Text color="white">No command history found 😢</Text>
-        <Text color="white">Try running some commands first!</Text>
-      </Box>
+      <ErrorMessage
+        message="No command history found 😢"
+        subtext="Try running some commands first!"
+      />
     );
   }
 

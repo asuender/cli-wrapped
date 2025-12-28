@@ -1,8 +1,10 @@
 import React from "react";
 import { Box, Text } from "ink";
 import type { UsageStatsProps, HourlyChartProps } from "../types.js";
+import ErrorMessage from "./ErrorMessage.js";
 
 const BAR_CHARS = [" ", "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"];
+const CHART_WIDTH = 2;
 const CHART_HEIGHT = 4;
 
 function formatHour(hour: number): string {
@@ -19,7 +21,9 @@ function HourlyChart(chartProps: HourlyChartProps) {
     chartProps;
 
   const max = Math.max(...hourlyBreakdown);
-  if (max === 0) return null;
+  if (max === 0) {
+    return <ErrorMessage message="No hourly data available to display." />;
+  }
 
   // Normalize values to total height (CHART_HEIGHT rows × 8 levels per row)
   const totalLevels = CHART_HEIGHT * 8;
@@ -33,7 +37,7 @@ function HourlyChart(chartProps: HourlyChartProps) {
     const rowChars = normalized.map((level) => {
       const rowBase = row * 8;
       const inThisRow = Math.max(0, Math.min(8, level - rowBase));
-      return (BAR_CHARS[inThisRow] ?? " ").repeat(2);
+      return (BAR_CHARS[inThisRow] ?? " ").repeat(CHART_WIDTH);
     });
     rows.push(rowChars.join(""));
   }
@@ -42,7 +46,7 @@ function HourlyChart(chartProps: HourlyChartProps) {
   const peakLabel = peakHourCount.toLocaleString();
   let labelRow = "";
   if (peakHour !== null) {
-    const peakPos = peakHour * 2;
+    const peakPos = peakHour * CHART_WIDTH;
     const labelStart = Math.max(0, peakPos - Math.floor(peakLabel.length / 2));
     labelRow = " ".repeat(labelStart) + peakLabel;
   }
