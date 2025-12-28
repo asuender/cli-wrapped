@@ -4,27 +4,32 @@ import BigText from "ink-big-text";
 import Spinner from "ink-spinner";
 import CommandChart from "./components/CommandChart.js";
 import SystemInfo from "./components/SystemInfo.js";
-import { getTopCommands, CommandStat } from "./history.js";
+import UsageStats from "./components/UsageStats.js";
+import { getHistoryStats, HistoryStats } from "./history.js";
 
-const tabs = ["Your wrapped", "System Info"];
+const tabs = ["Your wrapped", "Activity Breakdown", "System Info"];
 
 export default function App() {
   const { exit } = useApp();
   const [activeTab, setActiveTab] = useState(0);
-  const [topCommands, setTopCommands] = useState<CommandStat[] | null>(null);
+  const [stats, setStats] = useState<HistoryStats | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getTopCommands(15)
-      .then(setTopCommands)
+    getHistoryStats(15)
+      .then(setStats)
       .catch((error) =>
-        setError(error.message ?? "Failed to retrieve top commands.")
+        setError(error.message ?? "Failed to retrieve history stats.")
       );
   }, []);
 
   useInput((_input, key) => {
-    if (key.tab) {
+    if (key.tab || key.rightArrow) {
       setActiveTab((prev) => (prev + 1) % tabs.length);
+    }
+
+    if (key.leftArrow) {
+      setActiveTab((prev) => (prev <= 0 ? tabs.length - 1 : prev - 1));
     }
 
     if (key.escape) {
@@ -53,28 +58,30 @@ export default function App() {
 
       <Box marginTop={1} gap={2}>
         <Text color="white">
-          Press Tab to switch between tabs, Escape to exit.
+          Press Tab or arrow keys to navigate, Escape to exit.
         </Text>
       </Box>
 
       {/* Tab Content */}
       <Box marginTop={1}>
-        {activeTab === 0 &&
-          (error ? (
-            <Box width={60}>
-              <Text color="red">Error: {error}</Text>
-            </Box>
-          ) : topCommands ? (
-            <CommandChart commands={topCommands} />
-          ) : (
-            <Text>
-              <Text color="cyan">
-                <Spinner type="dots" />
-              </Text>
-              {" Loading command history..."}
+        {error ? (
+          <Box width={60}>
+            <Text color="red">Error: {error}</Text>
+          </Box>
+        ) : !stats ? (
+          <Text>
+            <Text color="cyan">
+              <Spinner type="dots" />
             </Text>
-          ))}
-        {activeTab === 1 && <SystemInfo />}
+            {" Loading history..."}
+          </Text>
+        ) : (
+          <>
+            {activeTab === 0 && <CommandChart commands={stats.topCommands} />}
+            {activeTab === 1 && <UsageStats stats={stats.usageStats} />}
+            {activeTab === 2 && <SystemInfo />}
+          </>
+        )}
       </Box>
     </Box>
   );

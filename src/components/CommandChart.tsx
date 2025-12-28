@@ -22,7 +22,7 @@ export default function CommandChart({ commands }: Props) {
   return (
     <Box flexDirection="column" gap={1}>
       <Text bold color="magenta">
-        🏆 YOUR TOP COMMANDS
+        YOUR TOP COMMANDS
       </Text>
 
       <Box flexDirection="column" marginLeft={2}>
@@ -38,9 +38,14 @@ export default function CommandChart({ commands }: Props) {
               ? "magenta"
               : index === 3
               ? "blue"
+              : index === 4
+              ? "green"
               : "gray";
 
-          const rank = `#${index + 1}`.padStart(3, " ");
+          const rank = `${index == 0 ? "🏆" : `#${index + 1}`}`.padStart(
+            3,
+            " "
+          );
 
           return (
             <Box key={cmd.command} flexDirection="row" gap={1}>

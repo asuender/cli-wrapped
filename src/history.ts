@@ -18,6 +18,13 @@ type FishHistoryEntry = {
   when?: number;
 };
 
+export type UsageStats = {
+  peakHour: number | null;
+  peakHourCount: number;
+  totalWithTimestamps: number;
+  hourlyBreakdown: number[];
+};
+
 const IGNORED_COMMANDS = new Set([
   "clear",
   "cd",
@@ -84,7 +91,7 @@ function parseFish(content: string): Command[] {
     }));
 }
 
-export const getTopCommands = async (limit = 10): Promise<CommandStat[]> => {
+async function getCommands(): Promise<Command[]> {
   const homeDir = os.homedir();
   const shell = process.env["SHELL"] || "";
   let historyFile = "";
@@ -109,32 +116,69 @@ export const getTopCommands = async (limit = 10): Promise<CommandStat[]> => {
 
   try {
     await fs.access(historyFile);
+    const historyContent = await fs.readFile(historyFile, "utf-8");
+
+    return parser(historyContent);
   } catch {
     throw new Error(
       "Could not read the history file. It either does not exist or" +
-        "commands are stored elsewhere."
+        "you don't have the permissions to read it."
     );
   }
+}
 
-  // Read and parse history file
-  const historyContent = await fs.readFile(historyFile, "utf-8");
-  const commands = parser(historyContent);
+export type HistoryStats = {
+  topCommands: CommandStat[];
+  usageStats: UsageStats;
+};
+
+export const getHistoryStats = async (limit = 10): Promise<HistoryStats> => {
+  const commands = await getCommands();
 
   // Count command frequency
   const commandCounts = new Map<string, number>();
-
   for (const { command } of commands) {
-    // Extract base command (first word), normalize to lowercase for counting
     const baseCommand = command.split(/\s+/)[0]?.toLowerCase();
     if (baseCommand && !IGNORED_COMMANDS.has(baseCommand)) {
       commandCounts.set(baseCommand, (commandCounts.get(baseCommand) || 0) + 1);
     }
   }
 
-  const sortedCommands = Array.from(commandCounts.entries())
+  const topCommands = Array.from(commandCounts.entries())
     .map(([command, count]) => ({ command, count }))
     .sort((a, b) => b.count - a.count)
     .slice(0, limit);
 
-  return sortedCommands;
+  // Count commands by hour
+  const hourCounts = new Map<number, number>();
+  let totalWithTimestamps = 0;
+
+  for (const { timestamp } of commands) {
+    if (timestamp !== null) {
+      totalWithTimestamps++;
+      const hour = new Date(timestamp * 1000).getHours();
+      hourCounts.set(hour, (hourCounts.get(hour) || 0) + 1);
+    }
+  }
+
+  // Find peak hour
+  let peakHour: number | null = null;
+  let peakHourCount = 0;
+
+  for (const [hour, count] of hourCounts) {
+    if (count > peakHourCount) {
+      peakHour = hour;
+      peakHourCount = count;
+    }
+  }
+
+  const hourlyBreakdown = Array.from(
+    { length: 24 },
+    (_, i) => hourCounts.get(i) || 0
+  );
+
+  return {
+    topCommands,
+    usageStats: { peakHour, peakHourCount, totalWithTimestamps, hourlyBreakdown },
+  };
 };
