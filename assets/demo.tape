@@ -4,8 +4,12 @@ Set FontSize 16
 Set Width 900
 Set Height 750
 Set Padding 15
+Set Margin 20
+Set MarginFill "#674EFF"
+Set BorderRadius 15
 Set TypingSpeed 100ms
 Set Theme "Catppuccin Mocha"
+Set WindowBar Colorful
 
 Type "cli-wrapped"
 Sleep 500ms
@@ -14,9 +18,13 @@ Enter
 # Wait for loading and show "Your wrapped" tab
 Sleep 3s
 
+# Switch to "Activity Breakdown" tab
+Tab
+Sleep 3s
+
 # Switch to "System Info" tab
 Tab
-Sleep 4s
+Sleep 3s
 
 # Switch back to "Your wrapped" tab
 Tab
