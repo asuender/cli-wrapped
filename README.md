@@ -75,10 +75,6 @@ pnpm run dev
 - [meow](https://github.com/sindresorhus/meow) - CLI argument parsing
 - TypeScript
 
-## Roadmap
-
-See [ROADMAP.md](ROADMAP.md) for planned features and ideas.
-
 ## Contributing
 
 Contributions are welcome! Feel free to open an issue or submit a pull request.
