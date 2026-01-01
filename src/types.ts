@@ -18,6 +18,8 @@ export type UsageStats = {
   peakHourCount: number;
   totalWithTimestamps: number;
   hourlyBreakdown: number[];
+  weeklyHeatmap: number[][]; // 7 days × 24 hours matrix
+  yearlyHeatmap: number[][]; // 7 days × 52 weeks matrix
 };
 
 export type HistoryStats = {
@@ -58,4 +60,14 @@ export type HourlyChartProps = {
 export type ErrorMessageProps = {
   message: string;
   subtext?: string;
+};
+
+export type HeatmapProps = {
+  title: string;
+  data: number[][];
+  rowLabels: string[];
+  colLabels: string[];
+  colLabelInterval?: number; // Show label every N columns (default: 1)
+  cellWidth?: 1 | 2; // Characters per cell (default: 2)
+  showLegend?: boolean; // Show legend below heatmap (default: true)
 };

@@ -5,170 +5,201 @@ import { parse as parseYAML } from "yaml";
 import type { Command, FishHistoryEntry, HistoryStats } from "./types.js";
 
 const IGNORED_COMMANDS = new Set([
-  "clear",
-  "cd",
-  "ls",
-  "pwd",
-  "exit",
-  "echo",
-  "history",
-  "l",
-  "ll",
-  "la",
-  "git",
+	"clear",
+	"cd",
+	"ls",
+	"pwd",
+	"exit",
+	"echo",
+	"history",
+	"l",
+	"ll",
+	"la",
+	"git",
 ]);
 
 function parseZsh(content: string): Command[] {
-  const commands: Command[] = [];
-  const lines = content.split("\n").filter((line) => line.trim());
+	const commands: Command[] = [];
+	const lines = content.split("\n").filter((line) => line.trim());
 
-  for (const line of lines) {
-    const trimmed = line.trim();
+	for (const line of lines) {
+		const trimmed = line.trim();
 
-    // zsh extended history format: : timestamp:duration;command
-    if (trimmed.startsWith(":")) {
-      const match = trimmed.match(/^: (\d+):\d+;(.*)$/);
-      if (match && match[1] && match[2]) {
-        commands.push({
-          command: match[2].trim(),
-          timestamp: parseInt(match[1], 10),
-        });
-      }
-    } else {
-      // Plain command without timestamp
-      commands.push({ command: trimmed, timestamp: null });
-    }
-  }
+		// zsh extended history format: : timestamp:duration;command
+		if (trimmed.startsWith(":")) {
+			const match = trimmed.match(/^: (\d+):\d+;(.*)$/);
+			if (match && match[1] && match[2]) {
+				commands.push({
+					command: match[2].trim(),
+					timestamp: parseInt(match[1], 10),
+				});
+			}
+		} else {
+			// Plain command without timestamp
+			commands.push({ command: trimmed, timestamp: null });
+		}
+	}
 
-  return commands;
+	return commands;
 }
 
 function parseBash(content: string): Command[] {
-  const commands: Command[] = [];
-  const lines = content.split("\n").filter((line) => line.trim());
+	const commands: Command[] = [];
+	const lines = content.split("\n").filter((line) => line.trim());
 
-  for (const line of lines) {
-    // Bash history doesn't include timestamps by default
-    commands.push({ command: line.trim(), timestamp: null });
-  }
+	for (const line of lines) {
+		// Bash history doesn't include timestamps by default
+		commands.push({ command: line.trim(), timestamp: null });
+	}
 
-  return commands;
+	return commands;
 }
 
 function parseFish(content: string): Command[] {
-  let parsed: FishHistoryEntry[] | null;
-  try {
-    parsed = parseYAML(content) as FishHistoryEntry[] | null;
-  } catch {
-    return [];
-  }
+	let parsed: FishHistoryEntry[] | null;
+	try {
+		parsed = parseYAML(content) as FishHistoryEntry[] | null;
+	} catch {
+		return [];
+	}
 
-  if (!Array.isArray(parsed)) {
-    return [];
-  }
+	if (!Array.isArray(parsed)) {
+		return [];
+	}
 
-  return parsed
-    .filter((entry) => entry && typeof entry.cmd === "string")
-    .map((entry) => ({
-      command: entry.cmd,
-      timestamp: entry.when ?? null,
-    }));
+	return parsed
+		.filter((entry) => entry && typeof entry.cmd === "string")
+		.map((entry) => ({
+			command: entry.cmd,
+			timestamp: entry.when ?? null,
+		}));
 }
 
 async function getCommands(): Promise<Command[]> {
-  const homeDir = os.homedir();
-  const shell = process.env["SHELL"];
+	const homeDir = os.homedir();
+	const shell = process.env["SHELL"];
 
-  if (!shell) {
-    throw new Error(
-      "Could not detect your shell. The SHELL environment variable is not set."
-    );
-  }
+	if (!shell) {
+		throw new Error(
+			"Could not detect your shell. The SHELL environment variable is not set.",
+		);
+	}
 
-  let historyFile = "";
-  let parser: (content: string) => Command[];
+	let historyFile = "";
+	let parser: (content: string) => Command[];
 
-  // Determine history file and parser based on shell
-  if (shell.includes("zsh")) {
-    historyFile = path.join(homeDir, ".zsh_history");
-    parser = parseZsh;
-  } else if (shell.includes("bash")) {
-    historyFile = path.join(homeDir, ".bash_history");
-    parser = parseBash;
-  } else if (shell.includes("fish")) {
-    historyFile = path.join(homeDir, ".local/share/fish/fish_history");
-    parser = parseFish;
-  } else {
-    throw new Error(
-      "You're likely using a shell other than bash, zsh and fish. " +
-        "If that's the case, reach out by creating an issue to add support for your shell."
-    );
-  }
+	// Determine history file and parser based on shell
+	if (shell.includes("zsh")) {
+		historyFile = path.join(homeDir, ".zsh_history");
+		parser = parseZsh;
+	} else if (shell.includes("bash")) {
+		historyFile = path.join(homeDir, ".bash_history");
+		parser = parseBash;
+	} else if (shell.includes("fish")) {
+		historyFile = path.join(homeDir, ".local/share/fish/fish_history");
+		parser = parseFish;
+	} else {
+		throw new Error(
+			"You're likely using a shell other than bash, zsh and fish. " +
+				"If that's the case, reach out by creating an issue to add support for your shell.",
+		);
+	}
 
-  try {
-    await fs.access(historyFile);
-    const historyContent = await fs.readFile(historyFile, "utf-8");
+	try {
+		await fs.access(historyFile);
+		const historyContent = await fs.readFile(historyFile, "utf-8");
 
-    return parser(historyContent);
-  } catch {
-    throw new Error(
-      "Could not read the history file. It either does not exist or" +
-        "you don't have the permissions to read it."
-    );
-  }
+		return parser(historyContent);
+	} catch {
+		throw new Error(
+			"Could not read the history file. It either does not exist or" +
+				"you don't have the permissions to read it.",
+		);
+	}
 }
 
 export const getHistoryStats = async (limit = 10): Promise<HistoryStats> => {
-  const commands = await getCommands();
+	const commands = await getCommands();
 
-  // Count command frequency
-  const commandCounts = new Map<string, number>();
-  for (const { command } of commands) {
-    const baseCommand = command.split(/\s+/)[0]?.toLowerCase();
-    if (baseCommand && !IGNORED_COMMANDS.has(baseCommand)) {
-      commandCounts.set(baseCommand, (commandCounts.get(baseCommand) || 0) + 1);
-    }
-  }
+	// Count command frequency
+	const commandCounts = new Map<string, number>();
+	for (const { command } of commands) {
+		const baseCommand = command.split(/\s+/)[0]?.toLowerCase();
+		if (baseCommand && !IGNORED_COMMANDS.has(baseCommand)) {
+			commandCounts.set(baseCommand, (commandCounts.get(baseCommand) || 0) + 1);
+		}
+	}
 
-  const topCommands = Array.from(commandCounts.entries())
-    .map(([command, count]) => ({ command, count }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, limit);
+	const topCommands = Array.from(commandCounts.entries())
+		.map(([command, count]) => ({ command, count }))
+		.sort((a, b) => b.count - a.count)
+		.slice(0, limit);
 
-  // Count commands by hour
-  const hourCounts = new Map<number, number>();
-  let totalWithTimestamps = 0;
+	// Count commands by hour and build heatmaps
+	const hourCounts = new Map<number, number>();
+	const weeklyHeatmap: number[][] = Array.from({ length: 7 }, () =>
+		Array.from({ length: 24 }, () => 0),
+	);
+	const yearlyHeatmap: number[][] = Array.from({ length: 7 }, () =>
+		Array.from({ length: 52 }, () => 0),
+	);
+	let totalWithTimestamps = 0;
 
-  for (const { timestamp } of commands) {
-    if (timestamp !== null) {
-      totalWithTimestamps++;
-      const hour = new Date(timestamp * 1000).getHours();
-      hourCounts.set(hour, (hourCounts.get(hour) || 0) + 1);
-    }
-  }
+	// Calculate the start of the current week (Sunday)
+	const now = new Date();
+	const currentWeekStart = new Date(now);
+	currentWeekStart.setHours(0, 0, 0, 0);
+	currentWeekStart.setDate(now.getDate() - now.getDay());
+	const msPerWeek = 7 * 24 * 60 * 60 * 1000;
 
-  let peakHour: number | null = null;
-  let peakHourCount = 0;
+	for (const { timestamp } of commands) {
+		if (timestamp !== null) {
+			totalWithTimestamps++;
+			const date = new Date(timestamp * 1000);
+			const hour = date.getHours();
+			const day = date.getDay(); // 0 = Sunday, 6 = Saturday
+			hourCounts.set(hour, (hourCounts.get(hour) || 0) + 1);
 
-  for (const [hour, count] of hourCounts) {
-    if (count > peakHourCount) {
-      peakHour = hour;
-      peakHourCount = count;
-    }
-  }
+			if (weeklyHeatmap[day]) {
+				weeklyHeatmap[day][hour] = (weeklyHeatmap[day][hour] ?? 0) + 1;
+			}
 
-  const hourlyBreakdown = Array.from(
-    { length: 24 },
-    (_, i) => hourCounts.get(i) || 0
-  );
+			// Calculate weeks ago (0 = current week, 51 = 52 weeks ago)
+			const weeksAgo = Math.floor(
+				(currentWeekStart.getTime() - date.getTime()) / msPerWeek,
+			);
+			if (weeksAgo >= 0 && weeksAgo < 52 && yearlyHeatmap[day]) {
+				// Store with oldest week first (index 0 = 51 weeks ago, index 51 = current week)
+				const weekIndex = 51 - weeksAgo;
+				yearlyHeatmap[day][weekIndex] = (yearlyHeatmap[day][weekIndex] ?? 0) + 1;
+			}
+		}
+	}
 
-  return {
-    topCommands,
-    usageStats: {
-      peakHour,
-      peakHourCount,
-      totalWithTimestamps,
-      hourlyBreakdown,
-    },
-  };
+	let peakHour: number | null = null;
+	let peakHourCount = 0;
+
+	for (const [hour, count] of hourCounts) {
+		if (count > peakHourCount) {
+			peakHour = hour;
+			peakHourCount = count;
+		}
+	}
+
+	const hourlyBreakdown = Array.from(
+		{ length: 24 },
+		(_, i) => hourCounts.get(i) || 0,
+	);
+
+	return {
+		topCommands,
+		usageStats: {
+			peakHour,
+			peakHourCount,
+			totalWithTimestamps,
+			hourlyBreakdown,
+			weeklyHeatmap,
+			yearlyHeatmap,
+		},
+	};
 };

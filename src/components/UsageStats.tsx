@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Text } from "ink";
 import type { UsageStatsProps, HourlyChartProps } from "../types.js";
 import ErrorMessage from "./ErrorMessage.js";
+import Heatmap from "./Heatmap.js";
 
 const BAR_CHARS = [" ", "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"];
 const CHART_WIDTH = 2;
@@ -81,9 +82,54 @@ function HourlyChart(chartProps: HourlyChartProps) {
   );
 }
 
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const HOURS = Array.from({ length: 24 }, (_, i) => String(i));
+const MONTH_NAMES = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+function getWeekLabels(): string[] {
+  const labels: string[] = [];
+  const now = new Date();
+  // Start from 51 weeks ago
+  const startDate = new Date(now);
+  startDate.setDate(now.getDate() - now.getDay() - 51 * 7);
+
+  let lastMonth = -1;
+  for (let i = 0; i < 52; i++) {
+    const weekDate = new Date(startDate);
+    weekDate.setDate(startDate.getDate() + i * 7);
+    const month = weekDate.getMonth();
+    if (month !== lastMonth) {
+      labels.push(MONTH_NAMES[month] ?? "");
+      lastMonth = month;
+    } else {
+      labels.push("");
+    }
+  }
+  return labels;
+}
+
 export default function UsageStats({ stats }: UsageStatsProps) {
-  const { peakHour, peakHourCount, totalWithTimestamps, hourlyBreakdown } =
-    stats;
+  const {
+    peakHour,
+    peakHourCount,
+    totalWithTimestamps,
+    hourlyBreakdown,
+    weeklyHeatmap,
+    yearlyHeatmap,
+  } = stats;
 
   if (totalWithTimestamps === 0) {
     return (
@@ -104,6 +150,21 @@ export default function UsageStats({ stats }: UsageStatsProps) {
         peakHour={peakHour}
         peakHourCount={peakHourCount}
         totalWithTimestamps={totalWithTimestamps}
+      />
+      <Heatmap
+        title="Weekly Heatmap"
+        data={weeklyHeatmap}
+        rowLabels={DAYS}
+        colLabels={HOURS}
+        colLabelInterval={6}
+        showLegend={false}
+      />
+      <Heatmap
+        title="Yearly Heatmap"
+        data={yearlyHeatmap}
+        rowLabels={DAYS}
+        colLabels={getWeekLabels()}
+        cellWidth={1}
       />
     </Box>
   );
