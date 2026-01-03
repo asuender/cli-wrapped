@@ -7,6 +7,7 @@ A terminal UI that gives you a fun, Spotify Wrapped-style summary of your comman
 ## Features
 
 - **Top Commands Chart** - See your most-used commands visualized as a colorful bar chart
+- **Activity Breakdown** - Hourly activity chart and GitHub-style weekly/yearly heatmaps
 - **System Info** - View system stats, uptime, and hardware info with fun commentary
 - **Tab Navigation** - Switch between views using keyboard navigation
 - **Shell Support** - Works with Bash and Zsh history files
@@ -14,7 +15,11 @@ A terminal UI that gives you a fun, Spotify Wrapped-style summary of your comman
 ## Installation
 
 ```bash
-npm install --global cli-wrapped
+git clone https://github.com/asuender/cli-wrapped.git
+cd cli-wrapped
+pnpm install
+pnpm run build
+pnpm link --global
 ```
 
 ## Usage
@@ -26,7 +31,7 @@ cli-wrapped
 ```
 
 **Keyboard controls:**
-- `Tab` - Switch between tabs
+- `Tab` or arrow keys - Switch between tabs
 - `Escape` - Exit the application
 
 For more options:
@@ -42,31 +47,12 @@ cli-wrapped --help
 - Node.js >= 16
 - pnpm
 
-### Setup
-
-1. Clone the repository and install dependencies:
-
-   ```bash
-   git clone https://github.com/asuender/cli-wrapped.git
-   cd cli-wrapped
-   pnpm install
-   ```
-
-2. Build and link globally:
-
-   ```bash
-   pnpm run build
-   pnpm link --global
-   ```
-
-3. Run `cli-wrapped` from anywhere.
-
 ### Development mode
 
-For auto-rebuild on file changes:
+After following the installation steps, run with auto-reload on file changes:
 
 ```bash
-pnpm run dev
+pnpm start
 ```
 
 ## Tech Stack
@@ -79,7 +65,7 @@ pnpm run dev
 
 Contributions are welcome! Feel free to open an issue or submit a pull request.
 
-### Recording the demo
+#### Recording the demo
 
 To record a new demo GIF, you need [vhs](https://github.com/charmbracelet/vhs) installed:
 
