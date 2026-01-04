@@ -135,15 +135,47 @@ export const getHistoryStats = async (limit = 10): Promise<HistoryStats> => {
     .sort((a, b) => b.count - a.count)
     .slice(0, limit);
 
-  // Count commands by hour
+  // Count commands by hour and build heatmaps
   const hourCounts = new Map<number, number>();
+  const weeklyHeatmap: number[][] = Array.from({ length: 7 }, () =>
+    Array.from({ length: 24 }, () => 0)
+  );
+  const yearlyHeatmap: number[][] = Array.from({ length: 7 }, () =>
+    Array.from({ length: 52 }, () => 0)
+  );
   let totalWithTimestamps = 0;
+
+  // Calculate the start of the current week (Sunday)
+  const now = new Date();
+  const currentWeekStart = new Date(now);
+  currentWeekStart.setHours(0, 0, 0, 0);
+  currentWeekStart.setDate(now.getDate() - now.getDay());
+  const msPerWeek = 7 * 24 * 60 * 60 * 1000;
 
   for (const { timestamp } of commands) {
     if (timestamp !== null) {
       totalWithTimestamps++;
-      const hour = new Date(timestamp * 1000).getHours();
+      const date = new Date(timestamp * 1000);
+      const hour = date.getHours();
+      const day = date.getDay(); // 0 = Sunday, 6 = Saturday
       hourCounts.set(hour, (hourCounts.get(hour) || 0) + 1);
+
+      if (weeklyHeatmap[day]) {
+        weeklyHeatmap[day][hour] = (weeklyHeatmap[day][hour] ?? 0) + 1;
+      }
+
+      // Calculate weeks ago (0 = current week, 51 = 52 weeks ago)
+      // Commands after currentWeekStart are in the current week (weeksAgo would be negative)
+      const weeksAgo = Math.max(
+        0,
+        Math.floor((currentWeekStart.getTime() - date.getTime()) / msPerWeek)
+      );
+      if (weeksAgo < 52 && yearlyHeatmap[day]) {
+        // Store with oldest week first (index 0 = 51 weeks ago, index 51 = current week)
+        const weekIndex = 51 - weeksAgo;
+        yearlyHeatmap[day][weekIndex] =
+          (yearlyHeatmap[day][weekIndex] ?? 0) + 1;
+      }
     }
   }
 
@@ -169,6 +201,8 @@ export const getHistoryStats = async (limit = 10): Promise<HistoryStats> => {
       peakHourCount,
       totalWithTimestamps,
       hourlyBreakdown,
+      weeklyHeatmap,
+      yearlyHeatmap,
     },
   };
 };
