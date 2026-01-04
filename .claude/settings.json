@@ -19,7 +19,8 @@
       "Bash(gh api:*)",
       "Bash(gh issue:*)",
       "Skill(commit-skill)",
-      "Edit(CLAUDE.md)"
+      "Edit(CLAUDE.md)",
+      "Edit(/.claude/**)"
     ]
   },
   "hooks": {
