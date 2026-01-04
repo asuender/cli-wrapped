@@ -8,6 +8,8 @@
       "Bash(pnpm add:*)",
       "Bash(pnpm exec lint-staged)",
       "Bash(node dist/cli.js:*)",
+      "Bash(git pull:*)",
+      "Bash(git fetch:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git branch:*)",
@@ -20,10 +22,15 @@
     ]
   },
   "hooks": {
-    "postToolUse": [
+    "PostToolUse": [
       {
         "matcher": "Edit|Write|NotebookEdit",
-        "command": "pnpm exec prettier --write $CLAUDE_FILE_PATHS"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm exec prettier --write $CLAUDE_FILE_PATHS"
+          }
+        ]
       }
     ]
   }
