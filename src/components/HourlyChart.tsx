@@ -73,8 +73,8 @@ export default function HourlyChart(props: HourlyChartProps) {
           ))}
         </Box>
         <Box justifyContent="space-between" width={24 * CHART_WIDTH}>
-          <Text dimColor>{formatHour(0)}</Text>
-          <Text dimColor>{formatHour(24)}</Text>
+          <Text dimColor>Midnight</Text>
+          <Text dimColor>Midnight</Text>
         </Box>
       </Box>
     </Box>

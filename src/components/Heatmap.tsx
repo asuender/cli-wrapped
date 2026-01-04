@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Text } from "ink";
 import type { HeatmapProps } from "../types.js";
+import ErrorMessage from "./ErrorMessage.js";
 
 const INTENSITY_CHARS = ["░", "▒", "▓", "█"];
 const EMPTY_CHAR = "·";
@@ -59,7 +60,12 @@ export default function Heatmap({
   colLabelWidth,
   showLegend = true,
 }: HeatmapProps) {
-  const max = Math.max(...data.flat());
+  const flatData = data.flat();
+  const max = flatData.length > 0 ? Math.max(...flatData) : 0;
+
+  if (max === 0) {
+    return <ErrorMessage message="No heatmap data available to display." />;
+  }
   const maxRowLabelLen = Math.max(...rowLabels.map((l) => l.length));
   const labelWidth = colLabelWidth ?? cellWidth;
   const headerRow = buildHeaderRow(
