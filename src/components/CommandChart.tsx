@@ -30,14 +30,14 @@ export default function CommandChart({ commands }: CommandChartProps) {
             index === 0
               ? "yellow"
               : index === 1
-              ? "cyan"
-              : index === 2
-              ? "magenta"
-              : index === 3
-              ? "blue"
-              : index === 4
-              ? "green"
-              : "gray";
+                ? "cyan"
+                : index === 2
+                  ? "magenta"
+                  : index === 3
+                    ? "blue"
+                    : index === 4
+                      ? "green"
+                      : "gray";
 
           const rank = `${index === 0 ? "🏆" : `#${index + 1}`}`.padStart(
             3,

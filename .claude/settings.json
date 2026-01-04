@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm run build:*)",
+      "Bash(pnpm run lint:*)",
+      "Bash(pnpm run format:*)",
+      "Bash(pnpm link)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm exec lint-staged)",
+      "Bash(node dist/cli.js:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git branch:*)",
+      "Bash(git push)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh api:*)",
+      "Bash(gh issue:*)",
+      "Skill(commit-skill)"
+    ]
+  },
+  "hooks": {
+    "postToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "command": "pnpm exec prettier --write $CLAUDE_FILE_PATHS"
+      }
+    ]
+  }
+}
