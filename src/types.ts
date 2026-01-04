@@ -69,5 +69,6 @@ export type HeatmapProps = {
   colLabels: string[];
   colLabelInterval?: number; // Show label every N columns (default: 1)
   cellWidth?: 1 | 2; // Characters per cell (default: 2)
+  colLabelWidth?: number; // Characters per column label (default: cellWidth)
   showLegend?: boolean; // Show legend below heatmap (default: true)
 };
