@@ -28,10 +28,13 @@ function getWeekLabels(): string[] {
   const startDate = new Date(now);
   startDate.setDate(now.getDate() - now.getDay() - 51 * 7);
   const startMonth = startDate.getMonth();
+  const interval = 4;
+  const remaining = 52 - interval * 12;
+  const offset = Math.floor(remaining / 2);
 
-  // Place 12 month labels at evenly spaced positions
+  // Place 12 month labels at a consistent spacing for visual alignment
   for (let i = 0; i < 12; i++) {
-    const weekIndex = Math.floor((i * 52) / 12);
+    const weekIndex = offset + i * interval;
     const monthIndex = (startMonth + i) % 12;
     labels[weekIndex] = MONTH_NAMES[monthIndex] ?? "";
   }

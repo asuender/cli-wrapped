@@ -21,8 +21,6 @@ function buildHeaderRow(
   labelWidth: number,
   colLabelInterval: number
 ): string {
-  const labelSpan = Math.ceil(labelWidth / cellWidth);
-
   const hasLabel = (index: number): boolean => {
     const label = colLabels[index] ?? "";
     return (
@@ -34,20 +32,19 @@ function buildHeaderRow(
   const formatLabel = (label: string): string =>
     label.slice(0, labelWidth).padStart(labelWidth, " ");
 
-  const segments: string[] = [];
-  let i = 0;
+  const totalWidth = colLabels.length * cellWidth;
+  const buffer = Array.from({ length: totalWidth }, () => " ");
 
-  while (i < colLabels.length) {
-    if (hasLabel(i)) {
-      segments.push(formatLabel(colLabels[i] ?? ""));
-      i += labelSpan;
-    } else {
-      segments.push(" ".repeat(cellWidth));
-      i += 1;
+  for (let i = 0; i < colLabels.length; i++) {
+    if (!hasLabel(i)) continue;
+    const label = formatLabel(colLabels[i] ?? "");
+    const start = i * cellWidth;
+    for (let j = 0; j < label.length && start + j < totalWidth; j++) {
+      buffer[start + j] = label[j] ?? " ";
     }
   }
 
-  return segments.join("");
+  return buffer.join("");
 }
 
 export default function Heatmap({
